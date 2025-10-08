@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CozyLearn - Learn Together{% endblock %}</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom CSS -->
+    <style>
+        .footer {
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+
+        @media (max-height: 600px) {
+            .footer {
+                position: relative;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo and Brand -->
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'home' %}" class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">CL</span>
+                        </div>
+                        <span class="text-xl font-bold text-gray-800">CozyLearn</span>
+                    </a>
+
+                    <!-- Navigation Links (visible when logged in) -->
+                    {% if user.is_authenticated %}
+                    <div class="hidden md:flex items-center space-x-6 ml-6">
+                        <a href="{% url 'home' %}" class="text-gray-600 hover:text-indigo-600 font-medium">Home</a>
+                        <a href="#" class="text-gray-600 hover:text-indigo-600 font-medium">My Lessons</a>
+                        <a href="#" class="text-gray-600 hover:text-indigo-600 font-medium">Browse</a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <!-- User Profile Dropdown -->
+                        <div class="relative group">
+                            <button class="flex items-center space-x-2 text-gray-700 hover:text-indigo-600">
+                                {% if user.profile_picture %}
+                                    <img src="{{ user.profile_picture.url }}" alt="Profile" class="w-8 h-8 rounded-full object-cover">
+                                {% else %}
+                                    <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                                        <span class="text-indigo-600 font-semibold text-sm">
+                                            {{ user.username|first|upper }}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                                <span class="hidden sm:block font-medium">{{ user.username }}</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+
+                            <!-- Dropdown Menu -->
+                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <a href="{% url 'profile' %}" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                                    👤 My Profile
+                                </a>
+                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                                    📚 My Lessons
+                                </a>
+                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                                    🎯 Learning
+                                </a>
+                                <div class="border-t my-1"></div>
+                                <a href="{% url 'logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                                    🔒 Logout
+                                </a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <!-- Login/Signup Buttons -->
+                        <div class="flex items-center space-x-3">
+                            <a href="{% url 'login' %}" class="text-gray-700 hover:text-indigo-600 font-medium">Login</a>
+                            <a href="{% url 'register' %}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 font-medium transition duration-200">
+                                Sign Up
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu (for smaller screens) -->
+    {% if user.is_authenticated %}
+    <div class="md:hidden bg-white border-b">
+        <div class="px-4 py-2 flex justify-around">
+            <a href="{% url 'home' %}" class="text-gray-600 hover:text-indigo-600 px-3 py-2">
+                🏠 Home
+            </a>
+            <a href="#" class="text-gray-600 hover:text-indigo-600 px-3 py-2">
+                📚 Lessons
+            </a>
+            <a href="#" class="text-gray-600 hover:text-indigo-600 px-3 py-2">
+                🎯 Learn
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        <!-- Messages/Notifications -->
+        {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} bg-{% if message.tags == 'success' %}green-50 border-green-200 text-green-700{% elif message.tags == 'error' %}red-50 border-red-200 text-red-700{% else %}blue-50 border-blue-200 text-blue-700{% endif %} border px-4 py-3 rounded-lg mb-4">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Page Content -->
+        {% block content %}
+        <!-- This block will be overridden by child templates -->
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer bg-white border-t mt-12">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Brand -->
+                <div class="col-span-1">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-6 h-6 bg-indigo-600 rounded flex items-center justify-center">
+                            <span class="text-white font-bold text-xs">CL</span>
+                        </div>
+                        <span class="text-lg font-bold text-gray-800">CozyLearn</span>
+                    </div>
+                    <p class="text-gray-600 text-sm">
+                        A collaborative learning platform where everyone can be both student and teacher.
+                    </p>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-4">Platform</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">Browse Lessons</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">Create Lesson</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">Community</a></li>
+                    </ul>
+                </div>
+
+                <!-- Support -->
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-4">Support</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">Help Center</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">Contact Us</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">Privacy Policy</a></li>
+                    </ul>
+                </div>
+
+                <!-- Connect -->
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-4">Connect</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">Twitter</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">GitHub</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">Discord</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="border-t mt-8 pt-6 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-500 text-sm">
+                    &copy; 2024 CozyLearn. All rights reserved.
+                </p>
+                <p class="text-gray-500 text-sm mt-2 md:mt-0">
+                    Built with ❤️ for learners everywhere
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    {% block extra_js %}{% endblock %}
+
+    <script>
+        // Simple JavaScript for dropdown functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.group')) {
+                    const dropdowns = document.querySelectorAll('.group .absolute');
+                    dropdowns.forEach(dropdown => {
+                        dropdown.classList.add('opacity-0', 'invisible');
+                    });
+                }
+            });
+
+            // Auto-hide messages after 5 seconds
+            const messages = document.querySelectorAll('.alert');
+            messages.forEach(message => {
+                setTimeout(() => {
+                    message.style.opacity = '0';
+                    message.style.transition = 'opacity 0.5s';
+                    setTimeout(() => message.remove(), 500);
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>
